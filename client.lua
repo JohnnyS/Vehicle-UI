@@ -1,3 +1,30 @@
+ESX = nil
+
+Citizen.CreateThread(function()
+	while ESX == nil do
+		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+		Citizen.Wait(0)
+	end
+
+	while ESX.GetPlayerData().job == nil do
+		Citizen.Wait(10)
+	end
+
+	ESX.PlayerData = ESX.GetPlayerData()
+end)
+
+RegisterNetEvent('esx:playerLoaded')
+AddEventHandler('esx:playerLoaded', function(xPlayer)
+	ESX.PlayerData = xPlayer
+end)
+
+RegisterNetEvent('esx:setJob')
+AddEventHandler('esx:setJob', function(job)
+	ESX.PlayerData.job = job
+end)
+
+--Above is ESX checks
+
 _menuPool = NativeUI.CreatePool()
 
 function ShowNotification(text)
@@ -193,7 +220,8 @@ Citizen.CreateThread(function()
 		local ped = GetPlayerPed(-1)
 		local vehicle = GetVehiclePedIsIn(ped, false)
 		
-		if IsControlJustReleased(1, Config.menuKey) then
+		--if IsControlJustReleased(1, Config.menuKey) then
+		if (IsControlJustReleased(0, Config.menuKey) or IsDisabledControlJustReleased(0, Config.menuKey)) and IsUsingKeyboard(0) and ESX.PlayerData.job and ESX.PlayerData.job.name == 'mechanic' and ESX.PlayerData.job.grade_name == 'boss' then
 			if IsPedInAnyVehicle(ped, false) and GetPedInVehicleSeat(vehicle, -1) == ped then
 				print("Open Menu!")
 				collectgarbage()
